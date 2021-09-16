@@ -377,6 +377,7 @@ int TransmitAndReceive(uint8_t slaveAddr, uint8_t* receiveData, uint8_t* transmi
    I2C3_MSA_R &= ~I2C_MSA_RS;  //clear MSA[0] to transmit data
 
    I2C3_MDR_R = transmitData[0];
+
    while ((I2C3_MCS_R & (0x40)) != 0){}; //wait for bus line to be ready
 
    I2C3_MCS_R = I2C_MCS_RUN|I2C_MCS_START; //Start and run transmission

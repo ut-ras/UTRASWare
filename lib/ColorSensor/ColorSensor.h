@@ -3,7 +3,7 @@
 #define ColorSensor_H
 
 #include <stdint.h>
-
+#include <lib/Timers/Timers.h>
 
 
 #define TCS34725_ADDRESS 0x29 //I2C Slave Adress for TCS34725
@@ -46,18 +46,40 @@
 
 typedef struct PrivateColorSensor{
     int isInitialized;
+
+    uint16_t redHigh;
+    uint16_t redLow;
+
+    uint16_t greenHigh;
+    uint16_t greenLow;
+
+    uint16_t blueHigh;
+    uint16_t blueLow;
+
+    uint8_t isClearInt;
+    uint8_t isGreenInt;
+    uint8_t isBlueInt;
+    uint8_t isRedInt;
+
 }PrivateColorSensor_t;
 
 typedef struct ColorSensor{
+
+    /* 16-bit value from color sensors' ADC */
     uint16_t RedValue;
     uint16_t GreenValue;
     uint16_t BlueValue;
     uint16_t ClearValue;
-    uint8_t interrupt;
+
+    /* indicate if an a threshold from a interrupt has been triggered */ 
+    uint8_t clearInterrupt;
+    uint8_t redInterrupt;
+    uint8_t greenInterrupt;
+    uint8_t blueInterrupt;
+
     PrivateColorSensor_t priv;
 }ColorSensor_t;
 
-/* colors available for the color sensor */
 typedef enum ColorSensorColors{
     RED,
     GREEN,
@@ -69,9 +91,5 @@ int ColorSensor_init(ColorSensor_t* sensor);
 
 void ColorSensor_Read(ColorSensor_t* sensor);
 
-void ColorSensor_SetInterrupt(ColorSensor_t* sensor, uint16_t low, uint16_t high, ColorSensorColors_t color, uint8_t priority);
-
+void ColorSensor_SetInterrupt(ColorSensor_t* sensor, uint16_t low, uint16_t high, ColorSensorColors_t color, uint8_t priority, TimerID_t timerID, int freq);
 #endif
-
-
-//TODO: change interrupt function such that it checks for thresholds and updates a variable within ColorSensor_t struct that indicates threshold has been passed. 
