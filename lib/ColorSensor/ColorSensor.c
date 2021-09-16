@@ -1,6 +1,13 @@
 
 #include <lib/ColorSensor/ColorSensor.h>
 #include<inc/I2C3.h>
+#include <lib/GPIO/GPIO.h>
+#include <lib/Timers/Timers.h>
+
+static GPIOConfig_t INT ={PIN_A7, NONE, false, false, 0, 0};
+static TimerConfig_t timer;
+static ColorSensor_t * interruptSensor;
+
 
 
 uint8_t isI2COn = 0;
@@ -35,7 +42,7 @@ int ColorSensor_init(ColorSensor_t* sensor){
 
   /* check devive ID and return if not correct ID*/
   TransmitAndReceive(TCS34725_ADDRESS, &ID, &command);
-  if((ID != TCS34725_ID1) || (ID != TCS34725_ID2)) return 0;
+  if((ID != TCS34725_ID1) && (ID != TCS34725_ID2)) return 0;
   
   /* set up sensor's configuration */
   I2C3_SendData(TCS34725_ADDRESS, ControlWriteValues, 2); //write to control register to set the gain to x1
@@ -59,9 +66,12 @@ int ColorSensor_init(ColorSensor_t* sensor){
  * @note ClearValue, RedValue, GreenValue, BlueValue variables in sensor will be updated
  **/
 
+//TODO: check if function works 
 void ColorSensor_Read(ColorSensor_t* sensor){
 
   if(sensor->priv.isInitialized == 0 || isI2COn == 0) return;
+	
+	
 
   /* Read 2 bytes from clear sensor */
   uint8_t command = (TCS34725_COMMAND | TCS34725_CDATAH_R); //command for clear high byte
@@ -115,4 +125,75 @@ void ColorSensor_Read(ColorSensor_t* sensor){
 
   dataH = dataH << 8; //shift high byte 8 bits up
   sensor->BlueValue = (dataH | dataL); //combine both high and low bytes and store it
+}
+
+
+uint8_t setInterruptValues[2] = {TCS34725_COMMAND | TCS34725_ENABLE_R, TCS34725_ENABLE_AIEN | TCS34725_ENABLE_PON | TCS34725_ENABLE_AEN};
+uint8_t persistenceValues[2] = { TCS34725_COMMAND | TCS34725_PERS_R, TCS34725_PERS_5CYCLES};
+
+
+static void ColorHandler(){
+	ColorSensor_Read(interruptSensor);
+  if(GPIOGetBit(PIN_A7)) interruptSensor->interrupt = 1;
+}
+void ColorSensor_SetInterrupt(ColorSensor_t* sensor, uint16_t low, uint16_t high, ColorSensorColors_t color, uint8_t priority){
+
+  /* configuration for the interrupt */
+  timer.timerID = TIMER_0A;
+  timer.handlerTask =  ColorHandler;
+  timer.isPeriodic = true;
+  timer.priority = priority;
+  timer.period = freqToPeriod(90, MAX_FREQ);
+
+  interruptSensor = sensor;
+
+  switch (color)
+  {
+  case CLEAR:
+    
+    I2C3_SendData(TCS34725_ADDRESS, setInterruptValues, 2); //initialize interrupts in device
+    I2C3_SendData(TCS34725_ADDRESS, persistenceValues, 2); //set persistance to 5 consecutive cycles
+
+		GPIOInit(INT);
+
+    /* set low threshold data */
+
+    uint8_t thresholdData[2] = {TCS34725_COMMAND | TCS34725_AILTL_R, low&(0x0F)}; //data for low threshold lower byte
+
+    I2C3_SendData(TCS34725_ADDRESS, thresholdData, 2); //write to low threshold lower byte
+
+    /* data for low threshold upper byte */
+    thresholdData[0] = TCS34725_COMMAND | TCS34725_AILTH_R;
+    thresholdData[0] = low&(0xF0);
+
+    I2C3_SendData(TCS34725_ADDRESS, thresholdData, 2); //write to low threshold upper byte
+
+
+    /* set high threshold data */
+
+    /* data for high threshold lower byte */
+    thresholdData[0] = TCS34725_COMMAND | TCS34725_AIHTL_R;
+    thresholdData[1] = high&(0xF0); 
+
+    I2C3_SendData(TCS34725_ADDRESS, thresholdData, 2); //write to high threshold lower byte
+
+    /* data for high threshold upper byte */
+    thresholdData[0] = TCS34725_COMMAND | TCS34725_AIHTH_R;
+    thresholdData[1] = high&(0xF0);
+
+    I2C3_SendData(TCS34725_ADDRESS, thresholdData, 2); //write to high threshold upper byte
+
+    TimerInit(timer); //initialize interrupt
+    
+
+
+
+
+    break;
+  
+  default:
+    break;
+  }
+
+  
 }
