@@ -166,7 +166,8 @@ void ColorSensor_Read(ColorSensor_t* sensor);
  * @note PA7 GPIO pin will needed if interrupt for clear sensor is initialized and must be connected to "int" pin in color sensor device
  * 
  **/
-void ColorSensor_SetInterrupt(ColorSensor_t* sensor, uint16_t low, uint16_t high, ColorSensorColors_t color, uint8_t priority, TimerID_t timerID, int freq);
+
+void ColorSensor_SetInterrupt(ColorSensor_t* sensor, uint16_t low, uint16_t high, ColorSensorColors_t color, uint8_t priority, TimerID_t timerID);
 
 /**
  * @brief disable a specified interrupt 
@@ -177,6 +178,6 @@ void ColorSensor_SetInterrupt(ColorSensor_t* sensor, uint16_t low, uint16_t high
  * 
  **/
 
-void ColorSensor_DisableInterrupt(ColorSensor_t* sensor, ColorSensorColors_t color);
+void ColorSensor_DisableInterrupt(ColorSensorColors_t color);
 
 #endif

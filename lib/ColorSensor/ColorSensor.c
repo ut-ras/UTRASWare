@@ -31,7 +31,7 @@
 
 static GPIOConfig_t INT_Pin ={PIN_A7, NONE, false, false, 0, 0}; //GPIO configuration for int pin
 static TimerConfig_t timers[MAX_COLORSENSOR_TIMERS]; //array of timer of configuration for each color sensor
-static ColorSensor_t* interruptSensor; //instance of color sensor being used.
+static ColorSensor_t* sensors[MAX_COLORSENSOR_TIMERS] = {0x0, 0x0, 0x0, 0x0}; //array of sensors used for interrupts
 
 /* interrupt counters for persistance buffer */
 static uint8_t redCount = 0;
@@ -190,29 +190,29 @@ void ColorSensor_Read(ColorSensor_t* sensor){
  * @brief interrupt handler for clear interrupt 
  **/
 static void ColorSensor_Handler0(){
-	ColorSensor_Read(interruptSensor);
+	ColorSensor_Read(sensors[CLEAR]);
 
-  if(GPIOGetBit(PIN_A7)) interruptSensor->clearInterrupt = 1;
+  if(GPIOGetBit(PIN_A7)) sensors[CLEAR]->clearInterrupt = 1;
 	
-	else interruptSensor->clearInterrupt = 0;
+	else sensors[CLEAR]->clearInterrupt = 0;
 }
 
 /**
  * @brief interrupt handler for green interrupt 
  **/
 static void ColorSensor_Handler1(){
-  ColorSensor_Read(interruptSensor);
+  ColorSensor_Read(sensors[GREEN]);
 
-  if(interruptSensor->GreenValue < interruptSensor->priv.greenLow || interruptSensor->GreenValue > interruptSensor->priv.greenHigh){
+  if(sensors[GREEN]->GreenValue < sensors[GREEN]->priv.greenLow || sensors[GREEN]->GreenValue > sensors[GREEN]->priv.greenHigh){
     greenCount++;
     if(greenCount >= 5){
-      interruptSensor->greenInterrupt =1;
+      sensors[GREEN]->greenInterrupt =1;
       greenCount = 0;
     }
   } 
 
   else{
-    interruptSensor->greenInterrupt = 0;
+    sensors[GREEN]->greenInterrupt = 0;
     greenCount = 0;
   }
 
@@ -222,18 +222,18 @@ static void ColorSensor_Handler1(){
  * @brief interrupt handler for red interrupt 
  **/
 static void ColorSensor_Handler2(){
-  ColorSensor_Read(interruptSensor);
+  ColorSensor_Read(sensors[RED]);
 
-  if(interruptSensor->RedValue < interruptSensor->priv.redLow || interruptSensor->RedValue > interruptSensor->priv.redHigh) {
+  if(sensors[RED]->RedValue < sensors[RED]->priv.redLow || sensors[RED]->RedValue > sensors[RED]->priv.redHigh) {
     redCount++;
     if(redCount >= 5){
       redCount = 0;
-      interruptSensor->redInterrupt =1;
+      sensors[RED]->redInterrupt =1;
     }
   }
 
   else {
-    interruptSensor->redInterrupt = 0;
+    sensors[RED]->redInterrupt = 0;
     redCount = 0;}
 }
 
@@ -241,18 +241,18 @@ static void ColorSensor_Handler2(){
  * @brief interrupt handler for blue interrupt 
  **/
 static void ColorSensor_Handler3(){
-  ColorSensor_Read(interruptSensor);
+  ColorSensor_Read(sensors[BLUE]);
 
-  if(interruptSensor->BlueValue < interruptSensor->priv.blueLow || interruptSensor->BlueValue > interruptSensor->priv.blueHigh){
+  if(sensors[BLUE]->BlueValue < sensors[BLUE]->priv.blueLow || sensors[BLUE]->BlueValue > sensors[BLUE]->priv.blueHigh){
     blueCount++;
     if(blueCount >= 5){
-      interruptSensor->blueInterrupt =1;
+      sensors[BLUE]->blueInterrupt =1;
       blueCount=0;
     }
   } 
 
   else{
-    interruptSensor->blueInterrupt = 0;
+    sensors[BLUE]->blueInterrupt = 0;
     blueCount = 0;
   } 
 }
@@ -316,7 +316,7 @@ void ColorSensor_SetInterrupt(ColorSensor_t* sensor, uint16_t low, uint16_t high
 
   /* initialize color sensor */
   if(sensor->priv.isInitialized == 0){
-    ColorSensor_init(&sensor);
+    ColorSensor_init(sensor);
   }
 
   /* configuration for the interrupt */
@@ -325,7 +325,6 @@ void ColorSensor_SetInterrupt(ColorSensor_t* sensor, uint16_t low, uint16_t high
   timers[color].priority = priority;
   timers[color].period = freqToPeriod(MAX_COLORSENSOR_FREQ, MAX_FREQ);
 
-  interruptSensor = sensor; //store sensor
 
   switch (color)
   {
@@ -333,9 +332,11 @@ void ColorSensor_SetInterrupt(ColorSensor_t* sensor, uint16_t low, uint16_t high
   /* clear sensor interrupt */
   case CLEAR:
     
-    if(interruptSensor->priv.isClearInt == 0){
+    if(sensors[color] == 0x0){
       ClearInterrupt_Init(high, low);
       timers[color].handlerTask = ColorSensor_Handler0;
+      sensors[color] = sensor;
+      sensor->priv.isClearInt = 1;
     }
     break;
   
@@ -343,23 +344,30 @@ void ColorSensor_SetInterrupt(ColorSensor_t* sensor, uint16_t low, uint16_t high
   /* green sensor interrupt */
   case GREEN:
 
-    if(interruptSensor->priv.isGreenInt == 0) timers[color].handlerTask = ColorSensor_Handler1;
+    if(sensors[GREEN]->priv.isGreenInt == 0) timers[color].handlerTask = ColorSensor_Handler1;
     sensor->priv.greenHigh = high;
     sensor->priv.greenLow  = low;
+    sensors[color] = sensor;
+    sensor->priv.isGreenInt = 1;
+
     break;
 
   /* red sensor interrupt */
   case RED:
-    if(interruptSensor->priv.isRedInt == 0) timers[color].handlerTask = ColorSensor_Handler2;
+    if(sensors[RED]->priv.isRedInt == 0) timers[color].handlerTask = ColorSensor_Handler2;
     sensor->priv.redHigh = high;
     sensor->priv.redLow  = low;
+    sensors[color] = sensor;
+    sensor->priv.isRedInt = 1;
     break;
 
   /* blue sensor interrupt */
   case BLUE:
-    if(interruptSensor->priv.isBlueInt == 0)timers[color].handlerTask = ColorSensor_Handler3;
+    if(sensors[BLUE]->priv.isBlueInt == 0)timers[color].handlerTask = ColorSensor_Handler3;
     sensor->priv.blueHigh = high;
     sensor->priv.blueLow  = low;
+    sensors[color] = sensor;
+    sensor->priv.isBlueInt = 1;
     break;
   }
 
@@ -375,24 +383,54 @@ void ColorSensor_SetInterrupt(ColorSensor_t* sensor, uint16_t low, uint16_t high
  * 
  **/
 
-void ColorSensor_DisableInterrupt(ColorSensor_t* sensor, ColorSensorColors_t color){
+void ColorSensor_DisableInterrupt(ColorSensorColors_t color){
 
   switch (color)
   {
   case CLEAR:
-    if(sensor->priv.isClearInt == 1) TimerStop(timers[color].timerID);
+    if(sensors[color] == 0x0) return;
+
+    if(sensors[color]->priv.isClearInt == 1) {
+      TimerStop(timers[color].timerID);
+      sensors[color]->priv.isClearInt = 0;
+      sensors[color]->clearInterrupt = 0;
+      sensors[color] = 0x0;
+    }
     break;
   
   case RED:
-    if(sensor->priv.isRedInt == 1) TimerStop(timers[color].timerID);
+    if(sensors[color] == 0x0) return;
+
+    if(sensors[color]->priv.isRedInt == 1) {
+      TimerStop(timers[color].timerID);
+      sensors[color]->priv.isRedInt = 0;
+      sensors[color]->redInterrupt = 0;
+      sensors[color] = 0x0;
+      
+    };
     break;
 
   case GREEN:
-    if(sensor->priv.isGreenInt == 1) TimerStop(timers[color].timerID);
+    if(sensors[color] == 0x0) return;
+
+    if(sensors[color]->priv.isGreenInt == 1){
+       TimerStop(timers[color].timerID);
+       sensors[color]->priv.isGreenInt = 0;
+       sensors[color]->greenInterrupt = 0;
+       sensors[color] = 0x0;
+    }
+
     break;
 
   case BLUE:
-    if(sensor->priv.isBlueInt == 1) TimerStop(timers[color].timerID);
+    if(sensors[color] == 0x0) return;
+
+    if(sensors[color]->priv.isBlueInt == 1){
+       TimerStop(timers[color].timerID);
+       sensors[color]->priv.isBlueInt = 0;
+       sensors[color]->blueInterrupt = 0;
+       sensors[color] = 0x0;
+    }
     break;
   }
 }
