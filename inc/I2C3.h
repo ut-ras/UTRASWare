@@ -5,7 +5,7 @@
  * This file originally comes from the TIDA-010021 Firmware (tidcf48.zip) and<br>
  * was modified by Pololu to support the MSP432P401R.  Modified again for TM4C123
  * @version   SSD1306 EE319K
- * @author    Daniel Valvano and Jonathan Valvano
+ * @author    Daniel Valvano and Jonathan Valvano, modified by Dario Jimenez on 09/26/21
  * @copyright Copyright 2021 by Jonathan W. Valvano, valvano@mail.utexas.edu,
  * @warning   AS-IS
  * @note      For more information see  http://users.ece.utexas.edu/~valvano/

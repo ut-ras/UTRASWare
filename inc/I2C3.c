@@ -2,6 +2,7 @@
 // Runs on TM4C123
 // Busy-wait device driver for the I2C3.
 // Daniel and Jonathan Valvano
+// Modified by Dario Jimenez on 09/16/21
 // Jan 2, 2021
 // This file originally comes from the TIDA-010021 Firmware (tidcf48.zip) and
 // was modified by Pololu to support the MSP432P401R. Modified again for TM4C123
