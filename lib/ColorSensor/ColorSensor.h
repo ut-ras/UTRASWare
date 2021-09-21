@@ -19,6 +19,13 @@
  * 
  **/
 
+
+//TODO: write up an example program
+
+
+//TODO: write up a new I2C library
+
+
 #ifndef ColorSensor_H
 #define ColorSensor_H
 
@@ -152,7 +159,7 @@ int ColorSensor_init(ColorSensor_t* sensor);
 void ColorSensor_Read(ColorSensor_t* sensor);
 
 /**
- * @brief initializes an interrupt that sets a flag in ColorSensor_t instance indicating a value from a color sensor is greater than high threshold
+ * @brief initializes an interrupt that sets a flag in ColorSensor_t instance if a value from a specified color sensor is greater than high threshold
  *        less than low threshold
  * 
  * @param sensor instance of ColorSensor_t passed as a pointer.
@@ -164,10 +171,11 @@ void ColorSensor_Read(ColorSensor_t* sensor);
  * 
  * @note interrupts will run at 30 Hz
  * @note PA7 GPIO pin will needed if interrupt for clear sensor is initialized and must be connected to "int" pin in color sensor device
+ * @note interrupt priority for all interrupts will be 4. 
  * 
  **/
 
-void ColorSensor_SetInterrupt(ColorSensor_t* sensor, uint16_t low, uint16_t high, ColorSensorColors_t color, uint8_t priority, TimerID_t timerID);
+void ColorSensor_SetInterrupt(ColorSensor_t* sensor, uint16_t low, uint16_t high, ColorSensorColors_t color, TimerID_t timerID);
 
 /**
  * @brief disable a specified interrupt 

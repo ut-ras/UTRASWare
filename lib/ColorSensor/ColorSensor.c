@@ -27,6 +27,7 @@
 
 #define MAX_COLORSENSOR_TIMERS 4 // Max number of interrupts (1 for each color)
 #define MAX_COLORSENSOR_FREQ 30 //max frequency for color sensor
+#define COLORSENSOR_PRIORITY 4
 
 
 static GPIOConfig_t INT_Pin ={PIN_A7, NONE, false, false, 0, 0}; //GPIO configuration for int pin
@@ -207,7 +208,6 @@ static void ColorSensor_Handler1(){
     greenCount++;
     if(greenCount >= 5){
       sensors[GREEN]->greenInterrupt =1;
-      greenCount = 0;
     }
   } 
 
@@ -227,7 +227,6 @@ static void ColorSensor_Handler2(){
   if(sensors[RED]->RedValue < sensors[RED]->priv.redLow || sensors[RED]->RedValue > sensors[RED]->priv.redHigh) {
     redCount++;
     if(redCount >= 5){
-      redCount = 0;
       sensors[RED]->redInterrupt =1;
     }
   }
@@ -247,7 +246,6 @@ static void ColorSensor_Handler3(){
     blueCount++;
     if(blueCount >= 5){
       sensors[BLUE]->blueInterrupt =1;
-      blueCount=0;
     }
   } 
 
@@ -312,7 +310,7 @@ static void ClearInterrupt_Init(int high, int low){
  * @note PA7 GPIO pin will needed if interrupt for clear sensor is initialized and must be connected to "int" pin in color sensor device
  * 
  **/
-void ColorSensor_SetInterrupt(ColorSensor_t* sensor, uint16_t low, uint16_t high, ColorSensorColors_t color, uint8_t priority, TimerID_t timerID){
+void ColorSensor_SetInterrupt(ColorSensor_t* sensor, uint16_t low, uint16_t high, ColorSensorColors_t color, TimerID_t timerID){
 
   /* initialize color sensor */
   if(sensor->priv.isInitialized == 0){
@@ -322,7 +320,7 @@ void ColorSensor_SetInterrupt(ColorSensor_t* sensor, uint16_t low, uint16_t high
   /* configuration for the interrupt */
   timers[color].timerID = timerID;
   timers[color].isPeriodic = true;
-  timers[color].priority = priority;
+  timers[color].priority = COLORSENSOR_PRIORITY;
   timers[color].period = freqToPeriod(MAX_COLORSENSOR_FREQ, MAX_FREQ);
 
 

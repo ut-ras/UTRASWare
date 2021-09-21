@@ -404,9 +404,9 @@
               <FilePath>..\..\lib\Timers\Timers.c</FilePath>
             </File>
             <File>
-              <FileName>Example.c</FileName>
+              <FileName>ColorSensorExample.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\Example.c</FilePath>
+              <FilePath>.\ColorSensorExample.c</FilePath>
             </File>
             <File>
               <FileName>I2C3.c</FileName>
