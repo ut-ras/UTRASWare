@@ -14,16 +14,6 @@
 #include <raslib/Servo/Servo.h>
 
 
-// PWM_t ServoInit(PWMPin_t pin) {
-//     PWMConfig_t config = {
-//         .source=PWM_SOURCE_DEFAULT,
-//         .sourceInfo.pin=pin,
-//         .period=freqToPeriod(333, MAX_FREQ), // 3 ms
-//         .dutyCycle=50
-//     };
-//     return PWMInit(config);
-// }
-
 PWM_t ServoInit(ServoConfig_t config) {
     PWMConfig_t pmwConfig = {
         .source=PWM_SOURCE_TIMER,
