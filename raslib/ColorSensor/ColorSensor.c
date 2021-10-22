@@ -245,7 +245,8 @@ void ColorSensorSample(ColorSensor_t * sensor){
  **/
 void ColorSensorDisableInterrupt(ColorSensor_t sensor){
 
-	for(int i=0; i<MAX_COLOR_SENSORS; i++){
+    int i;
+	for(i=0; i<MAX_COLOR_SENSORS; i++){
 		if(&sensor == settings[i].sensor){
 			if(settings[i].isEnabled) TimerStop(settings[i].timer);
 			return;
@@ -258,7 +259,8 @@ void ColorSensorDisableInterrupt(ColorSensor_t sensor){
  **/
 void ColorSensorEnableInterrupt(ColorSensor_t sensor){
 	
-	for(int i=0; i<MAX_COLOR_SENSORS; i++){
+    int i;
+	for(i=0; i<MAX_COLOR_SENSORS; i++){
 		if(&sensor == settings[i].sensor){
 			if(!settings[i].isEnabled) TimerStart(settings[i].timer);
 			return;
