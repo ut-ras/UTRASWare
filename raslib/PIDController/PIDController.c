@@ -67,7 +67,7 @@ PIDConfig_t PIDControllerTune(
     double pMultiplier = 0.1;
     double iMultiplier = 0.1;
     double dMultiplier = 0.1;
-	uint32_t convergenceID = 0;
+    uint32_t convergenceID = 0;
 
     const uint8_t DIM_LENGTH = 20;
             /* Each iteration lasts numIterCycles. During this period, we use the
@@ -86,33 +86,33 @@ PIDConfig_t PIDControllerTune(
                     config.d = d * dMultiplier;
 
                     /* Reset plant. */
-					double actualOutput = 0.0;
+                    double actualOutput = 0.0;
                     plantFunction(0.0);
 
                     /* Delay the cycle by msCycleDelay for the new input to propagate. */
                     DelayMillisec(msCycleDelay);
 
-					double outputHist[5] = {0.0};
+                    double outputHist[5] = {0.0};
                     uint32_t iter;
                     for (iter = 0; iter < numCycles; ++iter) {
-						outputHist[iter%5] = sensorFunction();
-						
-						/* This function does three things at once. 
-						   1. It captures the current sensor value
-						   2. Iterates the PID controller to generate a new setpoint
-						   3. Sets the setpoint to the actuator, or the plant function. */
-						plantFunction(PIDControllerStep(config, desiredOutput, sensorFunction()));
+                        outputHist[iter%5] = sensorFunction();
+                        
+                        /* This function does three things at once. 
+                           1. It captures the current sensor value
+                           2. Iterates the PID controller to generate a new setpoint
+                           3. Sets the setpoint to the actuator, or the plant function. */
+                        plantFunction(PIDControllerStep(config, desiredOutput, sensorFunction()));
 
                         /* Delay the cycle by msCycleDelay for the new input to propagate. */
                         DelayMillisec(msCycleDelay);
                     }
-					outputHist[numCycles%5] = sensorFunction();
-					double outputHistTailAvg = 
-						(outputHist[0] + 
-						 outputHist[1] + 
-						 outputHist[2] + 
-						 outputHist[3] + 
-						 outputHist[4]) / 5;
+                    outputHist[numCycles%5] = sensorFunction();
+                    double outputHistTailAvg = 
+                        (outputHist[0] + 
+                         outputHist[1] + 
+                         outputHist[2] + 
+                         outputHist[3] + 
+                         outputHist[4]) / 5;
 
                     /* Evaluate the end error. */
                     double error = fabs(desiredOutput - outputHistTailAvg) / desiredOutput;
@@ -142,27 +142,27 @@ PIDConfig_t PIDControllerTune(
                     /* Delay the cycle by msCycleDelay for the new input to propagate. */
                     DelayMillisec(msCycleDelay);
 
-					double outputHist[5] = {0.0};
+                    double outputHist[5] = {0.0};
                     uint32_t iter;
                     for (iter = 0; iter < numCycles; ++iter) {
-						outputHist[iter%5] = sensorFunction();
-						double outputHistTailAvg = 
-							(outputHist[0] + 
-							 outputHist[1] + 
-							 outputHist[2] + 
-							 outputHist[3] + 
-							 outputHist[4]) / 5;
+                        outputHist[iter%5] = sensorFunction();
+                        double outputHistTailAvg = 
+                            (outputHist[0] + 
+                             outputHist[1] + 
+                             outputHist[2] + 
+                             outputHist[3] + 
+                             outputHist[4]) / 5;
 
-					
-						/* This function does three things at once. 
-						   1. It captures the current sensor value
-						   2. Iterates the PID controller to generate a new setpoint
-						   3. Sets the setpoint to the actuator, or the plant function. */
-						plantFunction(PIDControllerStep(config, desiredOutput, sensorFunction()));
+                    
+                        /* This function does three things at once. 
+                           1. It captures the current sensor value
+                           2. Iterates the PID controller to generate a new setpoint
+                           3. Sets the setpoint to the actuator, or the plant function. */
+                        plantFunction(PIDControllerStep(config, desiredOutput, sensorFunction()));
 
                         /* Delay the cycle by msCycleDelay for the new input to propagate. */
                         DelayMillisec(msCycleDelay);
-	
+    
                         /* Evaluate convergence speed. */
                         if (fabs(desiredOutput - outputHistTailAvg) / desiredOutput < 0.05 && iter < convergenceCycles) {
                             convergenceID = p << 16 | i << 8 | d;
