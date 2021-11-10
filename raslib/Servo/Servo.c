@@ -3,7 +3,7 @@
  * @author Matthew Yu (matthewjkyu@gmail.com)
  * @brief High level driver for running a SM-S4303R Springrc servo motor.
  * @version 0.1
- * @date 2021-09-29
+ * @date 2021-11-09
  * @copyright Copyright (c) 2021
  */
 
@@ -15,14 +15,14 @@
 
 
 PWM_t ServoInit(ServoConfig_t config) {
-    PWMConfig_t pmwConfig = {
+    PWMConfig_t pwmConfig = {
         .source=PWM_SOURCE_TIMER,
         .sourceInfo.timerSelect.pin=config.pin,
         .sourceInfo.timerSelect.timerID=config.timerID,
-        .period=240000, // 3 ms
+        .sourceInfo.timerSelect.period=240000, // 3 ms
         .dutyCycle=50
     };
-    return PWMInit(pmwConfig);
+    return PWMInit(pwmConfig);
 }
 
 void ServoSetSpeed(PWM_t servo, int8_t speed) {
@@ -41,7 +41,19 @@ void ServoSetSpeed(PWM_t servo, int8_t speed) {
        67].  */
 
     uint8_t dutyCycle = (uint8_t)(50.0 + 0.165 * speed); 
-    PWMUpdateConfig(servo, 240000, dutyCycle);
+    struct PWMTimerConfig timerConfig = {
+       .pin=servo.sourceInfo.timerInfo.pin,
+       .timerID=servo.sourceInfo.timerInfo.timer.timerID,
+       .period=servo.sourceInfo.timerInfo.timer.period,
+       .isIndividual=false,
+       .prescale=0
+    };
+    PWMConfig_t newConf = {
+       .source=servo.source,
+       .sourceInfo.timerSelect=timerConfig,
+       .dutyCycle=dutyCycle
+    };
+    PWMInit(newConf);
 }
 
 void ServoStart(PWM_t servo) {
