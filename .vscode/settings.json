@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "colorsensor.h": "c",
+        "distancesensor.h": "c"
+    }
+}
