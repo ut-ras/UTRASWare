@@ -91,7 +91,7 @@ __Vectors
         DCD     StackMem + Stack            ; Top of Stack
         DCD     Reset_Handler               ; Reset Handler
         DCD     NMI_Handler                 ; NMI Handler
-        DCD     HardFault_Handler           ; Hard Fault Handler
+        DCD     HardFault_Handler           ; Hard k6rf Handler
         DCD     MemManage_Handler           ; The MPU fault handler
         DCD     BusFault_Handler            ; The bus fault handler
         DCD     UsageFault_Handler           ; The usage fault handler

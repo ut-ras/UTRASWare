@@ -14,12 +14,12 @@
 #include <raslib/Servo/Servo.h>
 
 
-PWM_t ServoInit(ServoConfig_t config) {
+PWM_t ServoInit(PWMPin_t pin) {
     PWMConfig_t pwmConfig = {
-        .source=PWM_SOURCE_TIMER,
-        .sourceInfo.timerSelect.pin=config.pin,
-        .sourceInfo.timerSelect.timerID=config.timerID,
-        .sourceInfo.timerSelect.period=240000, // 3 ms
+        .source=PWM_SOURCE_DEFAULT,
+        .sourceInfo.pwmSelect.pin=pin,
+        .sourceInfo.pwmSelect.period=3750, // 3 ms
+        .sourceInfo.pwmSelect.divisor=PWM_DIV_2,
         .dutyCycle=50
     };
     return PWMInit(pwmConfig);
@@ -41,19 +41,14 @@ void ServoSetSpeed(PWM_t servo, int8_t speed) {
        67].  */
 
     uint8_t dutyCycle = (uint8_t)(50.0 + 0.165 * speed); 
-    struct PWMTimerConfig timerConfig = {
-       .pin=servo.sourceInfo.timerInfo.pin,
-       .timerID=servo.sourceInfo.timerInfo.timer.timerID,
-       .period=servo.sourceInfo.timerInfo.timer.period,
-       .isIndividual=false,
-       .prescale=0
+    PWMConfig_t pwmConfig = {
+        .source=PWM_SOURCE_DEFAULT,
+        .sourceInfo.pwmSelect.pin=servo.sourceInfo.pin,
+        .sourceInfo.pwmSelect.period=3750, // 3 ms
+        .sourceInfo.pwmSelect.divisor=PWM_DIV_2,
+        .dutyCycle=dutyCycle
     };
-    PWMConfig_t newConf = {
-       .source=servo.source,
-       .sourceInfo.timerSelect=timerConfig,
-       .dutyCycle=dutyCycle
-    };
-    PWMInit(newConf);
+    PWMInit(pwmConfig);
 }
 
 void ServoStart(PWM_t servo) {

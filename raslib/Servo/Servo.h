@@ -15,28 +15,21 @@
 /** @brief ServoConfig_t is a user defined struct that specifies a servo
  *         configuration . */
 typedef struct ServoConfig {
-    /** 
+    /**
      * @brief Pin servo is connected to.
-     * 
-     * Default PIN_A0.
+     *
+     * Default M0_PB6.
      */
-    GPIOPin_t pin;
-
-    /** 
-     * @brief Timer servo is attached to.
-     * 
-     * Default TIMER_0A.
-     */
-    TimerID_t timerID;
+    PWMPin_t pin;
 } ServoConfig_t;
 
 /**
  * @brief ServoInit starts up a motor on a specified PWM pin.
  * 
- * @param config ServoConfig_t to set up.
+ * @param config PWMPin_t pin to set up PWM on.
  * @return PWM_t instance that manages the servo motor.
  */
-PWM_t ServoInit(ServoConfig_t config);
+PWM_t ServoInit(PWMPin_t config);
 
 
 /**
