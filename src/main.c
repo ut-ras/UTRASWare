@@ -72,11 +72,21 @@ int main(void) {
     EnableInterrupts();
     
     /** Main loop. Put your program here! */
-//    ServoSetSpeed(servo1, 0);
-//    ServoSetSpeed(servo2, 0);
+    ServoSetSpeed(servo1, 100);
+//    ServoSetSpeed(servo2, 100);
     while (1) {
-        WaitForInterrupt();
+        //WaitForInterrupt();
+        //ServoSetSpeed(servo1, 100);
+        //DelayMillisec(5000);
+        ServoSetSpeed(servo2, 100);
+        DelayMillisec(250);
+        ServoSetSpeed(servo2, 0);
         DelayMillisec(5000);
+        ServoSetSpeed(servo2, -100);
+        DelayMillisec(250);
+        ServoSetSpeed(servo2, 0);
+        DelayMillisec(5000);
+
     }
 }
 
