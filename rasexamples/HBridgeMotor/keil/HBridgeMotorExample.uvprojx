@@ -10,6 +10,7 @@
       <TargetName>Target 1</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
+      <pCCUsed>5060960::V5.06 update 7 (build 960)::ARMCC</pCCUsed>
       <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
@@ -47,14 +48,14 @@
             <NotGenerated>0</NotGenerated>
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
-          <OutputDirectory>.\</OutputDirectory>
-          <OutputName>mentorRobot</OutputName>
+          <OutputDirectory>.\Objects\</OutputDirectory>
+          <OutputName>HBridgeMotorExample</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>0</CreateHexFile>
           <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
-          <ListingPath>.\</ListingPath>
+          <ListingPath>.\Listings\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
           <CreateBatchFile>0</CreateBatchFile>
@@ -125,47 +126,6 @@
             <HexOffset>0</HexOffset>
             <Oh166RecLen>16</Oh166RecLen>
           </OPTHX>
-          <Simulator>
-            <UseSimulator>0</UseSimulator>
-            <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
-            <RunToMain>1</RunToMain>
-            <RestoreBreakpoints>1</RestoreBreakpoints>
-            <RestoreWatchpoints>1</RestoreWatchpoints>
-            <RestoreMemoryDisplay>1</RestoreMemoryDisplay>
-            <RestoreFunctions>1</RestoreFunctions>
-            <RestoreToolbox>1</RestoreToolbox>
-            <LimitSpeedToRealTime>0</LimitSpeedToRealTime>
-            <RestoreSysVw>1</RestoreSysVw>
-          </Simulator>
-          <Target>
-            <UseTarget>1</UseTarget>
-            <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
-            <RunToMain>1</RunToMain>
-            <RestoreBreakpoints>1</RestoreBreakpoints>
-            <RestoreWatchpoints>1</RestoreWatchpoints>
-            <RestoreMemoryDisplay>1</RestoreMemoryDisplay>
-            <RestoreFunctions>0</RestoreFunctions>
-            <RestoreToolbox>1</RestoreToolbox>
-            <RestoreTracepoints>1</RestoreTracepoints>
-            <RestoreSysVw>1</RestoreSysVw>
-          </Target>
-          <RunDebugAfterBuild>0</RunDebugAfterBuild>
-          <TargetSelection>0</TargetSelection>
-          <SimDlls>
-            <CpuDll></CpuDll>
-            <CpuDllArguments></CpuDllArguments>
-            <PeripheralDll></PeripheralDll>
-            <PeripheralDllArguments></PeripheralDllArguments>
-            <InitializationFile></InitializationFile>
-          </SimDlls>
-          <TargetDlls>
-            <CpuDll></CpuDll>
-            <CpuDllArguments></CpuDllArguments>
-            <PeripheralDll></PeripheralDll>
-            <PeripheralDllArguments></PeripheralDllArguments>
-            <InitializationFile></InitializationFile>
-            <Driver>BIN\UL2CM3.DLL</Driver>
-          </TargetDlls>
         </DebugOption>
         <Utilities>
           <Flash1>
@@ -173,7 +133,7 @@
             <UseExternalTool>0</UseExternalTool>
             <RunIndependent>0</RunIndependent>
             <UpdateFlashBeforeDebugging>1</UpdateFlashBeforeDebugging>
-            <Capability>0</Capability>
+            <Capability>1</Capability>
             <DriverSelection>-1</DriverSelection>
           </Flash1>
           <bUseTDR>1</bUseTDR>
@@ -298,17 +258,17 @@
                 <Size>0x0</Size>
               </XRAM>
               <OCR_RVCT1>
-                <Type>0</Type>
+                <Type>1</Type>
                 <StartAddress>0x0</StartAddress>
                 <Size>0x0</Size>
               </OCR_RVCT1>
               <OCR_RVCT2>
-                <Type>0</Type>
+                <Type>1</Type>
                 <StartAddress>0x0</StartAddress>
                 <Size>0x0</Size>
               </OCR_RVCT2>
               <OCR_RVCT3>
-                <Type>0</Type>
+                <Type>1</Type>
                 <StartAddress>0x0</StartAddress>
                 <Size>0x0</Size>
               </OCR_RVCT3>
@@ -318,7 +278,7 @@
                 <Size>0x40000</Size>
               </OCR_RVCT4>
               <OCR_RVCT5>
-                <Type>0</Type>
+                <Type>1</Type>
                 <StartAddress>0x0</StartAddress>
                 <Size>0x0</Size>
               </OCR_RVCT5>
@@ -376,9 +336,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define></Define>
+              <Define>rvmdk PART_LM4F120H5QR</Define>
               <Undefine></Undefine>
-              <IncludePath></IncludePath>
+              <IncludePath>..\..\..\..\UTRASWare</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -421,9 +381,52 @@
       <Groups>
         <Group>
           <GroupName>Source Group 1</GroupName>
+          <Files>
+            <File>
+              <FileName>HBridgeMotorExample.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\HBridgeMotorExample.c</FilePath>
+            </File>
+            <File>
+              <FileName>HBridgeMotor.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\raslib\HBridgeMotor\HBridgeMotor.c</FilePath>
+            </File>
+            <File>
+              <FileName>PLL.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\lib\PLL\PLL.c</FilePath>
+            </File>
+            <File>
+              <FileName>startup.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>..\..\..\inc\startup.s</FilePath>
+            </File>
+            <File>
+              <FileName>PWM.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\lib\PWM\PWM.c</FilePath>
+            </File>
+            <File>
+              <FileName>GPIO.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\lib\GPIO\GPIO.c</FilePath>
+            </File>
+            <File>
+              <FileName>Timer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\lib\Timer\Timer.c</FilePath>
+            </File>
+          </Files>
         </Group>
       </Groups>
     </Target>
   </Targets>
+
+  <RTE>
+    <apis/>
+    <components/>
+    <files/>
+  </RTE>
 
 </Project>

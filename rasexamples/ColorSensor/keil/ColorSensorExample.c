@@ -18,9 +18,7 @@
 #include <lib/Timer/Timer.h>
 #include <raslib/ColorSensor/ColorSensor.h>
 #include <lib/I2C/I2C.h>
-#include <lib/PWM/PWM.h>
 
-#define DEBUG = 0;
 
 /** 
  * These function declarations are defined in the startup.s assembly file for
@@ -29,16 +27,6 @@
 void EnableInterrupts(void);    // Defined in startup.s
 void DisableInterrupts(void);   // Defined in startup.s
 void WaitForInterrupt(void);    // Defined in startup.s
-
-void updateLEDs(uint16_t* redValue, uint16_t* greenValue, uint16_t* blueValue, PWM_t* redPWM, PWM_t* greenPWM, PWM_t* bluePWM) {
-	uint16_t totValue = *redValue + *greenValue + *blueValue;
-	uint8_t redDuty = 100 - 100 * *redValue / totValue;
-	uint8_t greenDuty = 100 - 100 * *greenValue / totValue;
-	uint8_t blueDuty = 100 - 100  * *blueValue / totValue;
-	PWMUpdateConfig(*redPWM, freqToPeriod(1000, MAX_FREQ), redDuty);
-	PWMUpdateConfig(*greenPWM, freqToPeriod(1000, MAX_FREQ), greenDuty);
-	PWMUpdateConfig(*bluePWM, freqToPeriod(1000, MAX_FREQ), blueDuty);
-}
 
 /** Your main execution loop. */
 int main(void) {
@@ -52,7 +40,6 @@ int main(void) {
 			.pin=PIN_F1,
 			.isOutput=true,
 			.pull=GPIO_PULL_DOWN,
-			.alternateFunction=5
 		};
 		
 		/* configuration for blue built-in */
@@ -60,7 +47,6 @@ int main(void) {
 			.pin=PIN_F2,
 			.isOutput=true,
 			.pull=GPIO_PULL_DOWN,
-			.alternateFunction=5
 		};
 		
 		/* configuration for green built-in */
@@ -68,44 +54,13 @@ int main(void) {
 			.pin=PIN_F3,
 			.isOutput=true,
 			.pull=GPIO_PULL_DOWN,
-			.alternateFunction=5
 		};
 		
 		/* Initialize GPIO pins */
 		GPIOInit(redLED);
 		GPIOInit(blueLED);
 		GPIOInit(greenLED);
-		
-		/* Initialize Red LED to off */
-		PWMConfig_t redConfig = {
-				.source=PWM_SOURCE_TIMER,
-				.sourceInfo.timerSelect.pin=PIN_F1,
-				.sourceInfo.timerSelect.timerID=TIMER_2A,
-				.period=freqToPeriod(1000, MAX_FREQ),
-				.dutyCycle=100
-		};
-		PWM_t redPWM = PWMInit(redConfig);
-		
-		/* Initialize Blue LED to off */
-		PWMConfig_t blueConfig = {
-				.source=PWM_SOURCE_TIMER,
-				.sourceInfo.timerSelect.pin=PIN_F2,
-				.sourceInfo.timerSelect.timerID=TIMER_3A,
-				.period=freqToPeriod(1000, MAX_FREQ),
-				.dutyCycle=100
-		};
-		PWM_t bluePWM = PWMInit(blueConfig);
-		
-		/* Initialize Green LED to off */
-		PWMConfig_t greenConfig = {
-				.source=PWM_SOURCE_TIMER,
-				.sourceInfo.timerSelect.pin=PIN_F3,
-				.sourceInfo.timerSelect.timerID=TIMER_4A,
-				.period=freqToPeriod(1000, MAX_FREQ),
-				.dutyCycle=100
-		};
-		PWM_t greenPWM = PWMInit(greenConfig);
-		
+
 		/* I2C configuration */
     I2CConfig_t i2ccon =  {
 				.module=I2C_MODULE_0, // This uses pins PB2 (SCL) and PB3 (SDA).
@@ -123,33 +78,31 @@ int main(void) {
 		/* Initialize color sensor */
 		ColorSensor_t sensor = ColorSensorInit(config);
 		
-		/* Timer to signal when to update the LED color */
-		void* timerArgs[] = {&sensor.RedValue, &sensor.GreenValue, &sensor.BlueValue, &redPWM, &greenPWM, &bluePWM};
-		TimerConfig_t ledTimerConfig = {
-			.timerID=TIMER_5A,
-			.period=8000000,
-			.timerTask=updateLEDs,
-			.isPeriodic=true,
-			.timerArgs=&timerArgs
-		};
-		Timer_t ledTimer = TimerInit(ledTimerConfig);
-		TimerStart(ledTimer);
-		
 		EnableInterrupts();
     
     /** Main loop. Put your program here! */
-		uint16_t redDebugArray[100];
-		uint16_t greenDebugArray[100];
-		uint16_t blueDebugArray[100];
-		uint8_t debugIndex = 0;
-    while (1) {	
-			#ifdef DEBUG
-			if (debugIndex < 100) {
-				redDebugArray[debugIndex] = sensor.RedValue;
-				greenDebugArray[debugIndex] = sensor.GreenValue;
-				blueDebugArray[debugIndex] = sensor.BlueValue;
-				debugIndex += 1;
+    while (1) {
+			
+			/* if all RGB values are under 0x10 (no object is likely in front of the sensor) turn off all LEDs */
+			if( (sensor.RedValue < 0x10) && (sensor.BlueValue < 0x10) && (sensor.GreenValue < 0x10) ){
+				GPIOSetBit(PIN_F1, 0);
+				GPIOSetBit(PIN_F2, 0);
+				GPIOSetBit(PIN_F3, 0);
 			}
-			#endif
-		}
+			
+			else{
+				/* turns on red LED if highest RGB value is red (i.e. a red object is placed in front of sensor) */
+				if((sensor.RedValue> sensor.GreenValue) && (sensor.RedValue > sensor.BlueValue)) GPIOSetBit(PIN_F1, 1);
+				else GPIOSetBit(PIN_F1, 0);
+				
+				/* turns on blue LED if highest RGB value is blue (i.e. a blue object is placed in front of sensor) */
+				if((sensor.BlueValue> sensor.RedValue) && (sensor.BlueValue > sensor.GreenValue)) GPIOSetBit(PIN_F2, 1);
+				else GPIOSetBit(PIN_F2, 0);
+				
+				/* turns on green LED if highest RGB value is green (i.e. a green object is placed in front of sensor) */
+				if((sensor.GreenValue> sensor.RedValue) && (sensor.GreenValue > sensor.BlueValue)) GPIOSetBit(PIN_F3, 1);
+				else GPIOSetBit(PIN_F3, 0);
+									 
+			}
+    }
 }
