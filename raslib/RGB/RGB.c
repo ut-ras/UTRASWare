@@ -19,15 +19,15 @@
 
 static Timer_t timer;
 static uint8_t states[8][4] = {
-    // R, B, G, next state
-      {0, 0, 0, 1},
-      {0, 0, 1, 5},
-      {0, 1, 0, 3},
-      {0, 1, 1, 1}, // We never go back to the off state :)
-      {1, 0, 0, 6},
-      {1, 0, 1, 4},
+    // R, B, G, next state      
+      {0, 0, 0, 1}, // R + G and R+G+B doesn't lead to interesting colors.
       {1, 1, 0, 2},
-      {1, 1, 1, 0}
+      {1, 0, 0, 3},
+      {0, 1, 1, 4}, 
+      {1, 0, 0, 5},
+      {0, 1, 0, 6},
+      {1, 0, 0, 7},
+      {0, 0, 1, 1}  // We never go back to the off state :)
 };
 
 static uint8_t state = 0;
@@ -48,7 +48,7 @@ void RGBInit(void) {
         true,
         0,
         false,
-        GPIO_DRIVE_2MA,
+        GPIO_DRIVE_4MA,
         false
     };
 
@@ -79,6 +79,8 @@ void RGBInit(void) {
     TimerConfig_t tConf = {
         TIMER_5A,
         freqToPeriod(15, MAX_FREQ),
+        false,
+        0,
         RGBStep,
         true,
         7,
