@@ -43,7 +43,7 @@ int main(void) {
     DisableInterrupts();
 
     LineSensorConfig_t config = {
-        .pins={AIN1, AIN2, AIN3, AIN4, AIN5, AIN6, AIN7, AIN8},
+        .pins={AIN0, AIN1, AIN2, AIN3, AIN4, AIN5, AIN6, AIN7},
         .numPins=8,
     };
 
