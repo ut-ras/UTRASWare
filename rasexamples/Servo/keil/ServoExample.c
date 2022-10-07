@@ -50,7 +50,7 @@ int main(void) {
            on. */
         GPIOSetBit(PIN_F1, 0);
         GPIOSetBit(PIN_F2, 0);
-    	  ServoSetSpeed(servo, 0);
+    	ServoSetSpeed(servo, 0);
         DelayMillisec(5000);
 
         /* Make the servo go backward for 5 seconds. */
